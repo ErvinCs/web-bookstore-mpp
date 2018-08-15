@@ -1,5 +1,5 @@
-rootProject.name = 'bookstore'
-include 'Common'
-include 'Server'
-include 'Client'
+rootProject.name = 'bookstore-lab7'
+include 'bookstore-core'
+include 'bookstore-client'
+include 'bookstore-web'
 
