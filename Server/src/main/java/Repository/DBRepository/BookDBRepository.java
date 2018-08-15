@@ -1,99 +1,56 @@
 package Repository.DBRepository;
 
-import Domain.BaseEntity;
 import Domain.Book;
-import Domain.Validators.Validator;
-import Domain.Validators.ValidatorException;
-import Repository.InMemoryRepository;
-import java.sql.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcOperations;
+
 import java.util.*;
 
-public class BookDBRepository<ID, T extends BaseEntity<ID>> extends InMemoryRepository<ID, T> {
+public class BookDBRepository implements BookRepository {
 
-    private static String URL;
-    private static String user;
-    private static String password;
+    @Autowired
+    private JdbcOperations jdbcOperations;
 
-    public BookDBRepository(Validator<T> validator, String URL, String user, String password)
-    {
-        super(validator);
-        this.URL = URL;
-        this.user = user;
-        this.password = password;
+    @Override
+    public List<Book> findAll() {
+        String sql = "SELECT * FROM Books";
+
+        return
+                jdbcOperations.query(sql, (rs, i)-> {
+                    Long id = rs.getLong("id");
+                    String name = rs.getString("title");
+                    String author = rs.getString("author");
+                    int isbn = rs.getInt("ISBN");
+
+                    Book b = new Book(name, author, isbn);
+                    b.setID(id);
+                    return b;
+                });
     }
 
-    public Set<T> findAll()
-    {
-        Set<T> books = new HashSet<>();
-        String sql = "select * from Books";
-        try(Connection connection = DriverManager.getConnection(URL, user, password);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet rs = statement.executeQuery())
-        {
-            while (rs.next())
-            {
-                Long id = rs.getLong("id");
-                String name = rs.getString("title");
-                String author = rs.getString("author");
-                int isbn = rs.getInt("ISBN");
-                Book b = new Book(name, author, isbn);
-                b.setID(id);
-                books.add((T) b);
-            }
-            return books;
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-    public void saveRec(Book book)
-    {
+    @Override
+    public String add(String item) {
         String sql = "insert into Books(title, author, ISBN) values (?,?,?)";
-        try(Connection con = DriverManager.getConnection(URL, user, password);
-            PreparedStatement statement = con.prepareStatement(sql))
-        {
-            statement.setString(1, book.getName());
-            statement.setString(2, book.getAuthor());
-            statement.setInt(3,book.getISBN());
-            statement.executeUpdate();
-        }catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+        List<String> list = Arrays.asList(item.split(","));
+        Integer x = jdbcOperations.update(sql, list.get(1), list.get(2), Integer.parseInt(list.get(3)));
+
+        return x.toString();
     }
 
-    public void updateRec(Book book)
-    {
-        String sql = "update Books set title=?, author=?, ISBN=? where id=?";
-        try(Connection con = DriverManager.getConnection(URL, user, password);
-            PreparedStatement statement = con.prepareStatement(sql))
-        {
-            statement.setString(1, book.getName());
-            statement.setString(2, book.getAuthor());
-            statement.setInt(3, book.getISBN());
-            statement.setLong(4,book.getID());
-            statement.executeUpdate();
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+    @Override
+    public String update(String item) {
+        String sql ="update Books set title=?, author=?, ISBN=? where id=?";
+        List<String> list = Arrays.asList(item.split(","));
+        Integer x = jdbcOperations.update(sql, list.get(1), list.get(2), Integer.parseInt(list.get(3)), Long.parseLong(list.get(4)));
+
+        return x.toString();
     }
 
-    public void deleteById(Long bookId)
-    {
+    @Override
+    public String delete(Long id) {
         String sql = "delete from Books where id=?";
-        try(Connection con = DriverManager.getConnection(URL, user, password);
-            PreparedStatement st = con.prepareStatement(sql))
-        {
-            st.setLong(1, bookId);
-            st.executeUpdate();
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+        Integer x = jdbcOperations.update(sql, id);
+
+        return x.toString();
     }
 }

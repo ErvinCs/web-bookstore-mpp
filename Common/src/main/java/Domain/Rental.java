@@ -1,9 +1,9 @@
 package Domain;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Rental extends BaseEntity<Long>
+public class Rental extends BaseEntity<Long> implements Serializable
 {
     private Long bookID;
     private Long clientID;
@@ -49,14 +49,4 @@ public class Rental extends BaseEntity<Long>
                 ", clientID='" + clientID + '\'' +
                 '}';
     }
-
-//    @Override
-//    public ArrayList<Object> getAttributes()
-//    {
-//        ArrayList<Object> attributes = new ArrayList<>();
-//        attributes.add(this.getID());
-//        attributes.add(bookID);
-//        attributes.add(clientID);
-//        return attributes;
-//    }
 }

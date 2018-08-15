@@ -1,100 +1,55 @@
 package Repository.DBRepository;
 
-import Domain.BaseEntity;
-import Domain.Client;
 import Domain.Rental;
-import Domain.Validators.Validator;
-import Repository.InMemoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcOperations;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-public class RentalDBRepository<ID, T extends BaseEntity<ID>> extends Repository.InMemoryRepository<ID, T> {
+public class RentalDBRepository implements RentalRepository {
 
-    private static String URL;
-    private static String user;
-    private static String password;
+    @Autowired
+    private JdbcOperations jdbcOperations;
 
-    public RentalDBRepository(Validator<T> validator, String URL, String user, String password)
-    {
-        super(validator);
-        this.URL = URL;
-        this.user = user;
-        this.password = password;
+    @Override
+    public List<Rental> findAll() {
+        String sql = "SELECT * FROM Rentals";
+
+        return
+                jdbcOperations.query(sql, (rs, i)-> {
+                    Long id = rs.getLong("id");
+                    Long bid = rs.getLong("book_id");
+                    Long cid = rs.getLong("client_id");
+                    Rental r = new Rental(bid, cid);
+                    r.setID(id);
+                    return r;
+                });
     }
 
-    public Set<T> findAll()
-    {
-        Set<T> rentals = new HashSet<>();
-        String sql = "select * from Rentals";
-        try(Connection connection = DriverManager.getConnection(URL, user, password);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet rs = statement.executeQuery())
-        {
-            while (rs.next())
-            {
-                Long id = rs.getLong("id");
-                Long bid = rs.getLong("book_id");
-                Long cid = rs.getLong("client_id");
-                Rental r = new Rental(bid, cid);
-                r.setID(id);
-                rentals.add((T) r);
-            }
-            return rentals;
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-    public void saveRec(Rental rental)
-    {
+    @Override
+    public String add(String item) {
         String sql = "insert into Rentals(book_id, client_id) values (?,?)";
-        try(Connection con = DriverManager.getConnection(URL, user, password);
-            PreparedStatement statement = con.prepareStatement(sql))
-        {
-            statement.setLong(1, rental.getBookID());
-            statement.setLong(2, rental.getClientID());
-            statement.executeUpdate();
-        }catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+        List<String> list = Arrays.asList(item.split(","));
+        Integer x = jdbcOperations.update(sql, Long.parseLong(list.get(1)), Long.parseLong(list.get(2)));
+
+        return x.toString();
     }
 
-    public void updateRec(Rental rental)
-    {
-        String sql = "update Rentals set book_id=?, client_id=? where id=?";
-        try(Connection con = DriverManager.getConnection(URL, user, password);
-            PreparedStatement statement = con.prepareStatement(sql))
-        {
-            statement.setLong(1, rental.getBookID());
-            statement.setLong(2, rental.getClientID());
-            statement.setLong(3, rental.getID());
-            statement.executeUpdate();
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+    @Override
+    public String update(String item) {
+        String sql ="update Rentals set book_id=?, client_id=? where id=?";
+        List<String> list = Arrays.asList(item.split(","));
+        Integer x = jdbcOperations.update(sql, Long.parseLong(list.get(1)), Long.parseLong(list.get(2)), Long.parseLong(list.get(3)));
+
+        return x.toString();
     }
 
-    public void deleteById(Long rentalId)
-    {
+    @Override
+    public String delete(Long id) {
         String sql = "delete from Rentals where id=?";
-        try(Connection con = DriverManager.getConnection(URL, user, password);
-            PreparedStatement st = con.prepareStatement(sql))
-        {
-            st.setLong(1, rentalId);
-            st.executeUpdate();
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+        Integer x = jdbcOperations.update(sql, id);
+
+        return x.toString();
     }
 }

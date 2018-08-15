@@ -1,22 +1,30 @@
 
-import Service.HandlerService;
-import TCP.ClientService;
-import TCP.TcpClient;
+import Service.BookService;
+import Service.ClientService;
+import Service.RentalService;
 import UI.ClientConsole;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 
 public class ClientApp {
     public static void main(String args[])
     {
-        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        TcpClient tcpClient = new TcpClient(executorService, HandlerService.SERVER_HOST, HandlerService.SERVER_PORT);
-        ClientService handlerService = new ClientService(executorService,tcpClient);
-        ClientConsole clientConsole = new ClientConsole(handlerService);
-        clientConsole.runConsole();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("Config");
 
-        executorService.shutdown();
+        BookService bookService = (BookService) context.getBean("bookServiceClient");
+        ClientService clientService = (ClientService) context.getBean("clientServiceClient");
+        RentalService rentalService = (RentalService) context.getBean("rentalServiceClient");
+
+        ClientConsole console = new ClientConsole(bookService, clientService, rentalService);
+        console.run();
+
+
+        System.out.println("Client - out");
     }
 }
 

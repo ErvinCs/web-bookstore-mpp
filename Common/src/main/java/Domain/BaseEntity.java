@@ -1,8 +1,8 @@
 package Domain;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public abstract class BaseEntity<ID>
+public abstract class BaseEntity<ID> implements Serializable
 {
     private ID id;
 
@@ -21,6 +21,4 @@ public abstract class BaseEntity<ID>
                 "id=" + id +
                 '}';
     }
-
-    //public abstract ArrayList<Object> getAttributes();
 }

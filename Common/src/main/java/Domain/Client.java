@@ -1,9 +1,9 @@
 package Domain;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Client extends BaseEntity<Long>
+public class Client extends BaseEntity<Long> implements Serializable
 {
     private String name;
     private String country;
@@ -63,14 +63,4 @@ public class Client extends BaseEntity<Long>
                 ", country='" + country + '\'' +
                 '}';
     }
-
-//    @Override
-//    public ArrayList<Object> getAttributes()
-//    {
-//        ArrayList<Object> attributes = new ArrayList<>();
-//        attributes.add(this.getID());
-//        attributes.add(name);
-//        attributes.add(country);
-//        return attributes;
-//    }
 }

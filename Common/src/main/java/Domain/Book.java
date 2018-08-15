@@ -1,9 +1,9 @@
 package Domain;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Book extends BaseEntity<Long>
+public class Book extends BaseEntity<Long> implements Serializable
 {
     private String name;
     private String author;
@@ -73,15 +73,4 @@ public class Book extends BaseEntity<Long>
                 ", ISBN=" + ISBN +
                 '}';
     }
-
-//    @Override
-//    public ArrayList<Object> getAttributes()
-//    {
-//        ArrayList<Object> attributes = new ArrayList<>();
-//        attributes.add(this.getID());
-//        attributes.add(name);
-//        attributes.add(author);
-//        attributes.add(ISBN);
-//        return attributes;
-//    }
 }
