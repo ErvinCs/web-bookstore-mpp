@@ -1,16 +1,13 @@
 <h2>All Heroes</h2>
 <div>
   <ul class="heroes">
-    <li *ngFor="let hero of heroes"
-        (click)="onSelect(hero)"
-        [class.selected]="hero === selectedHero">
-      <!-- repeat li foreach hero in heroes; click listener;
-           onSelect also add -->
-      <span class="badge">{{hero.id}}</span> {{hero.name}}
+    <li *ngFor="let hero of heroes">
+      <!-- All heroes route to their own page -->
+      <a routerLink="/detail/{{hero.id}}">
+        <span class="badge">{{hero.id}}</span> {{hero.name}}
+      </a>
     </li>
   </ul>
 </div>
-<!-- When the user clicks a hero in the list the selectedHero changes
-     When the selectedHero changes the property binding updates hero and
-     the HeroDetailComponent displays the new hero -->
-<app-hero-detail [hero]="selectedHero"></app-hero-detail>
+<!-- <app-hero-detail [hero]="selectedHero"></app-hero-detail>
+     This was replaced with a new page/route per hero-->
